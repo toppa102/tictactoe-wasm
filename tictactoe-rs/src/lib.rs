@@ -1,8 +1,15 @@
+use std::cmp::{max, min};
 use wasm_bindgen::prelude::*;
 
 const AI: u8 = 1;
 const PLAYER: u8 = 2;
 
+/// Return i64::MAX on ai win and i64::MIN on player win
+/// otherwise returns evaluation of board.
+//  Evaluation is based on how many ai or player
+//  has got in a row by using a variable "total" and adding
+//  or subtracting from it depending on how many ai or player
+//  has in a row.
 #[wasm_bindgen]
 pub fn check_winner(board: &[u8], size: usize, win_amount: usize) -> i64 {
     let mut total = 0;
@@ -179,14 +186,6 @@ pub fn check_winner(board: &[u8], size: usize, win_amount: usize) -> i64 {
 }
 
 #[wasm_bindgen]
-extern "C" {
-
-    #[wasm_bindgen(js_namespace = console, js_name = log)]
-    fn log_many(a: usize, b: i64);
-
-}
-
-#[wasm_bindgen]
 pub fn find_best_move(board: Vec<u8>, size: usize, win_amount: usize, max_depth: usize) -> usize {
     let mut best_value = i64::MIN;
     let mut best_move = usize::MIN;
@@ -195,8 +194,16 @@ pub fn find_best_move(board: Vec<u8>, size: usize, win_amount: usize, max_depth:
         if board[i] == 0 {
             let mut board = board.clone();
             board[i] = AI;
-            let val = minimax(board, size, win_amount, false, 1, max_depth);
-            log_many(i, val);
+            let val = minimax(
+                board,
+                size,
+                win_amount,
+                false,
+                1,
+                max_depth,
+                i64::MIN,
+                i64::MAX,
+            );
             if val > best_value {
                 best_value = val;
                 best_move = i;
@@ -214,6 +221,8 @@ pub fn minimax(
     is_maximing: bool,
     depth: usize,
     max_depth: usize,
+    alpha: i64,
+    beta: i64,
 ) -> i64 {
     let value = check_winner(&board, size, win_amount);
 
@@ -225,7 +234,7 @@ pub fn minimax(
     }
 
     if depth >= max_depth {
-        return value;
+        return value - depth as i64;
     }
 
     if board.iter().all(|x| *x != 0) {
@@ -234,13 +243,25 @@ pub fn minimax(
 
     if is_maximing {
         let mut best = i64::MIN;
+        let mut alpha = alpha;
         for i in 0..size * size {
             if board[i] == 0 {
                 let mut board = board.clone();
                 board[i] = AI;
-                let value = minimax(board, size, win_amount, false, depth + 1, max_depth);
-                if value > best {
-                    best = value;
+                let value = minimax(
+                    board,
+                    size,
+                    win_amount,
+                    false,
+                    depth + 1,
+                    max_depth,
+                    alpha,
+                    beta,
+                );
+                best = max(best, value);
+                alpha = max(alpha, best);
+                if beta <= alpha {
+                    break;
                 }
             }
         }
@@ -248,13 +269,25 @@ pub fn minimax(
         return best;
     } else {
         let mut best = i64::MAX;
+        let mut beta = beta;
         for i in 0..size * size {
             if board[i] == 0 {
                 let mut board = board.clone();
                 board[i] = PLAYER;
-                let value = minimax(board, size, win_amount, true, depth + 1, max_depth);
-                if value < best {
-                    best = value;
+                let value = minimax(
+                    board,
+                    size,
+                    win_amount,
+                    true,
+                    depth + 1,
+                    max_depth,
+                    alpha,
+                    beta,
+                );
+                best = min(best, value);
+                beta = min(beta, best);
+                if beta <= alpha {
+                    break;
                 }
             }
         }

@@ -13,7 +13,11 @@
 
   let wasm = init();
 
-  $: board = new Uint8Array(new Array(board_size * board_size).fill(0));
+  let board = new Uint8Array(new Array(board_size * board_size).fill(0));
+  $: {
+    win_amount = win_amount;
+    board = new Uint8Array(new Array(board_size * board_size).fill(0));
+  }
 
   function playTurn(i: number) {
     board[i] = 2;
@@ -21,8 +25,18 @@
     console.log(check_winner(board, board_size, win_amount));
 
     let winner = check_winner(board, board_size, win_amount);
+    console.log(winner);
 
-    if (winner == 9223372036854775807n || winner == -9223372036854775808n) {
+    if (winner == 9223372036854775807n) {
+      dispatch("message", { winner: "ai" });
+      board = new Uint8Array(new Array(board_size * board_size));
+    }
+    if (winner == -9223372036854775808n) {
+      dispatch("message", { winner: "player" });
+      board = new Uint8Array(new Array(board_size * board_size));
+    }
+    if (board.every((x) => x != 0)) {
+      dispatch("message", { winner: "draw" });
       board = new Uint8Array(new Array(board_size * board_size));
     }
   }
