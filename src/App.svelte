@@ -1,6 +1,6 @@
 <script lang="ts">
     import Board from "./Board.svelte";
-    import { options } from "./store";
+    import { options } from "./options-store";
 
     function handleMessage(event) {
         if (event.detail.winner == "player") {
