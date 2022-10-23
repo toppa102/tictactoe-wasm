@@ -1,9 +1,6 @@
 <script lang="ts">
     import Board from "./Board.svelte";
-    let board_size = 3;
-    let win_amount = 3;
-
-    $: search_depth = Math.min(Math.max(11 - board_size, 2), 11);
+    import { options } from "./store";
 
     function handleMessage(event) {
         if (event.detail.winner == "player") {
@@ -18,22 +15,30 @@
 
 <main>
     <div id="wrapper">
-        Size: <input type="number" bind:value={board_size} min="1" />
-        Amount for win:
-        <input type="number" bind:value={win_amount} min="1" max={board_size} />
-        <Board
-            {board_size}
-            {win_amount}
-            {search_depth}
-            on:message={handleMessage}
+        Size: <input
+            type="number"
+            bind:value={$options.size}
+            on:change={() =>
+                ($options.win = Math.min(
+                    Math.max($options.win, 1),
+                    $options.size
+                ))}
+            min="1"
         />
+        Amount for win:
+        <input
+            type="number"
+            bind:value={$options.win}
+            min="1"
+            max={$options.size}
+        />
+        <Board options={$options} on:message={handleMessage} />
     </div>
 </main>
 
 <style>
     #wrapper {
         margin: auto;
-        width: 50%;
         text-align: center;
     }
     :global(body) {

@@ -3,9 +3,7 @@
 
   const dispatch = createEventDispatcher();
 
-  export let board_size;
-  export let win_amount;
-  export let search_depth;
+  export let options;
 
   import init, { check_winner, find_best_move } from "tictactoe-rs";
   import x from "./assets/x.svg";
@@ -13,32 +11,33 @@
 
   let wasm = init();
 
-  let board = new Uint8Array(new Array(board_size * board_size).fill(0));
-  $: {
-    win_amount = win_amount;
-    board = new Uint8Array(new Array(board_size * board_size).fill(0));
+  $: board = new Uint8Array(new Array(options.size * options.size).fill(0));
+  $: depth = 11 - options.size;
+
+  let rounds = 0;
+
+  function checkWinner() {
+    let winner = check_winner(board, options.size, options.win);
+
+    if (winner == 9223372036854775807n) {
+      dispatch("message", { winner: "ai" });
+      board = new Uint8Array(new Array(options.size * options.size));
+    }
+    if (winner == -9223372036854775808n) {
+      dispatch("message", { winner: "player" });
+      board = new Uint8Array(new Array(options.size * options.size));
+    }
+    if (board.every((x) => x != 0)) {
+      dispatch("message", { winner: "draw" });
+      board = new Uint8Array(new Array(options.size * options.size));
+    }
   }
 
   function playTurn(i: number) {
     board[i] = 2;
-    board[find_best_move(board, board_size, win_amount, search_depth)] = 1;
-    console.log(check_winner(board, board_size, win_amount));
-
-    let winner = check_winner(board, board_size, win_amount);
-    console.log(winner);
-
-    if (winner == 9223372036854775807n) {
-      dispatch("message", { winner: "ai" });
-      board = new Uint8Array(new Array(board_size * board_size));
-    }
-    if (winner == -9223372036854775808n) {
-      dispatch("message", { winner: "player" });
-      board = new Uint8Array(new Array(board_size * board_size));
-    }
-    if (board.every((x) => x != 0)) {
-      dispatch("message", { winner: "draw" });
-      board = new Uint8Array(new Array(board_size * board_size));
-    }
+    checkWinner();
+    board[find_best_move(board, options.size, options.win, depth)] = 1;
+    checkWinner();
   }
 </script>
 
@@ -46,7 +45,7 @@
   {#await wasm}
     <div style="text-align: center; font-size: 3em;">Loading...</div>
   {:then}
-    <div id="board" style="width: {board_size * 60 + board_size * 2}px;">
+    <div id="board" style="width: {options.size * 60 + options.size * 2}px;">
       {#each board as val, i}
         {#if val == 1}
           <div class="cell"><img src={o} alt="O" /></div>
