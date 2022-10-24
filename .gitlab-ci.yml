@@ -1,0 +1,23 @@
+default:
+  image: rust:slim
+
+build-everything:
+  stage: build
+  before-script:
+    - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+    - apt install curl npm nodejs
+  script:
+    - wasm-pack build --target web ./tictactoe-rs
+    - npm install
+    - npm install ./tictactoe-rs/pkg
+
+pages:
+  script:
+    - npm run build
+    - mv dist public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
+  
