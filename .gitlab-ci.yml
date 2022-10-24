@@ -1,5 +1,5 @@
 default:
-  image: rust:latest-slim
+  image: rust:slim
 
 build-wasm:
   stage: build
