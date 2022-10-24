@@ -4,7 +4,7 @@ default:
 build-everything:
   stage: build
   before_script:
-    - apt install curl npm nodejs
+    - apt update && apt install curl npm nodejs
     - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
   script:
     - wasm-pack build --target web ./tictactoe-rs
