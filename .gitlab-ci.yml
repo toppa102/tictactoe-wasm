@@ -3,7 +3,7 @@ default:
 
 build-everything:
   stage: build
-  before-script:
+  before_script:
     - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
     - apt install curl npm nodejs
   script:
