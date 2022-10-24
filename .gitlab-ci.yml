@@ -1,10 +1,10 @@
 default:
-  image: rust:slim
+  image: rust:latest
 
 build-everything:
   stage: build
   before_script:
-    - apt update && apt install curl npm nodejs
+    - apt update && apt -yy install curl npm nodejs
     - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
   script:
     - wasm-pack build --target web ./tictactoe-rs
