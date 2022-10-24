@@ -2,7 +2,7 @@
     import Board from "./Board.svelte";
     import { options } from "./options-store";
 
-    function handleMessage(event) {
+    async function handleMessage(event) {
         if (event.detail.winner == "player") {
             alert("You won!");
         } else if (event.detail.winner == "ai") {

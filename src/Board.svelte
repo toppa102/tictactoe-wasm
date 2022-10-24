@@ -14,28 +14,30 @@
   $: board = new Uint8Array(new Array(options.size * options.size).fill(0));
   $: depth = 11 - options.size;
 
-  let rounds = 0;
-
   function checkWinner() {
     let winner = check_winner(board, options.size, options.win);
 
     if (winner == 9223372036854775807n) {
       dispatch("message", { winner: "ai" });
       board = new Uint8Array(new Array(options.size * options.size));
+      return 1;
     }
     if (winner == -9223372036854775808n) {
       dispatch("message", { winner: "player" });
       board = new Uint8Array(new Array(options.size * options.size));
+      return 2;
     }
     if (board.every((x) => x != 0)) {
       dispatch("message", { winner: "draw" });
       board = new Uint8Array(new Array(options.size * options.size));
+      return 3;
     }
+    return 0;
   }
 
   function playTurn(i: number) {
     board[i] = 2;
-    checkWinner();
+    if (checkWinner() != 0) return;
     board[find_best_move(board, options.size, options.win, depth)] = 1;
     checkWinner();
   }
