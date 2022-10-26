@@ -17,7 +17,7 @@ pages:
     - npm install
     - npm install ./tictactoe-rs/pkg
     - npm run build
-    - mv out public 
+    - mv dist public 
   artifacts:
     paths:
       - public
