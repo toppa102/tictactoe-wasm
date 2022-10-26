@@ -1,0 +1,22 @@
+image: rust:latest
+
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - ./node_modules/
+    - ./tictactoe-rs/target
+
+pages:
+  before_script:
+    - apt update && apt -y install curl npm nodejs
+    - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+  script:
+    - wasm-pack build --target web ./tictactoe-rs
+    - npm install
+    - npm install ./tictactoe-rs/pkg
+    - npm run build
+    - mv out public 
+  artifacts:
+    paths:
+      - public
