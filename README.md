@@ -1,9 +1,9 @@
 # About 
 
 Tictactoe built with svelte and rust using wasm.
-Hosted at [url].
+Hosted [here].
 
-[url]: https://toppa102.gitlab.io/tictactoe-wasm/
+[here]: https://toppa102.gitlab.io/tictactoe-wasm/
 
 # Building
 ## Prerequisites
