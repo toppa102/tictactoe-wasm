@@ -9,7 +9,8 @@ cache:
 
 pages:
   before_script:
-    - apt update && apt -y install curl npm nodejs
+    - curl -fsSL https://deb.nodesource.com/setup_19.x | bash - &&\
+    - apt install -y nodejs
     - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
   script:
     - wasm-pack build --target web ./tictactoe-rs
