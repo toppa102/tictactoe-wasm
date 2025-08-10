@@ -1,4 +1,8 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
+
+  const dispatch = createEventDispatcher();
+
   export let options;
 
   import init, { check_winner, find_best_move } from "tictactoe-rs";
@@ -13,21 +17,25 @@
   let winner = undefined;
 
   function checkWinner() {
-    let winner_value = check_winner(board, options.size, options.win);
+    let winner = check_winner(board, options.size, options.win);
 
-    if (winner_value == 9223372036854775807n) {
-      winner = "ai";
+    if (winner == 9223372036854775807n) {
+      dispatch("message", { winner: "ai" });
+      board = new Uint8Array(new Array(options.size * options.size));
       return 1;
     }
-    if (winner_value == -9223372036854775808n) {
-      winner = "player";
+    if (winner == -9223372036854775808n) {
+      dispatch("message", { winner: "player" });
+      board = new Uint8Array(new Array(options.size * options.size));
       return 2;
     }
     if (board.every((x) => x != 0)) {
-      winner = "draw";
+      dispatch("message", { winner: "draw" });
+      board = new Uint8Array(new Array(options.size * options.size));
       return 3;
     }
     return 0;
+
   }
 
   function playTurn(i: number) {

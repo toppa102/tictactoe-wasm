@@ -1,0 +1,54 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            tictactoe-rs/target
+          key: ${{ runner.os }}-build-${{ hashFiles('**/package-lock.json', '**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-
+
+      - name: Build Rust WASM package
+        run: wasm-pack build --target web ./tictactoe-rs
+
+      - name: Install npm dependencies
+        run: |
+          npm install
+          npm install ./tictactoe-rs/pkg
+
+      - name: Build static site
+        run: npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist

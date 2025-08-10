@@ -1,6 +1,17 @@
 <script lang="ts">
   import Board from "./Board.svelte";
   import { options } from "./options-store";
+
+  async function handleMessage(event) {
+    if (event.detail.winner == "player") {
+      alert("You won!");
+    } else if (event.detail.winner == "ai") {
+      alert("You lost!");
+    } else {
+      alert("Draw!");
+    }
+  }
+
 </script>
 
 <main>
@@ -23,7 +34,7 @@
       style="width: 40px;"
     />
 
-    <Board options={$options} />
+    <Board options={$options} on:message={handleMessage} />
   </div>
 </main>
 
